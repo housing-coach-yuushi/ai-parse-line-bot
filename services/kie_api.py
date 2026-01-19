@@ -5,16 +5,10 @@ import asyncio
 import base64
 import io
 import json
-import httpx
-from PIL import Image
-
-import asyncio
-import base64
-import io
-import json
-import httpx
-from PIL import Image
 from typing import Optional
+
+import httpx
+from PIL import Image
 
 from config import settings
 
