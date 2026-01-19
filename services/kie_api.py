@@ -135,6 +135,71 @@ async def poll_webhook(uuid: str, timeout: int = 120) -> Optional[str]:
     return None
 
 
+def build_task_payload(model: str, image_url: str, prompt: str, callback_url: str) -> dict:
+    """
+    モデルごとに適切なペイロードを構築（1K解像度）
+    """
+    if model == "nano-banana-pro":
+        return {
+            "model": model,
+            "callBackUrl": callback_url,
+            "input": {
+                "prompt": prompt,
+                "image_input": [image_url],
+                "aspect_ratio": "16:9",
+                "resolution": "1K",
+                "output_format": "png"
+            }
+        }
+    elif model == "flux-2/flex-image-to-image":
+        return {
+            "model": model,
+            "callBackUrl": callback_url,
+            "input": {
+                "input_urls": [image_url],
+                "prompt": prompt,
+                "aspect_ratio": "16:9",
+                "resolution": "1K",
+                "strength": 0.55
+            }
+        }
+    elif model == "seedream/4.5-edit":
+        return {
+            "model": model,
+            "callBackUrl": callback_url,
+            "input": {
+                "prompt": prompt,
+                "image_urls": [image_url],
+                "aspect_ratio": "16:9",
+                "quality": "basic"  # 1K = basic
+            }
+        }
+    elif model == "gpt-image/1.5-image-to-image":
+        # GPT Image: プロンプト1000文字制限、アスペクト比マッピング
+        gpt_prompt = prompt[:1000] if len(prompt) > 1000 else prompt
+        return {
+            "model": model,
+            "callBackUrl": callback_url,
+            "input": {
+                "input_urls": [image_url],
+                "prompt": gpt_prompt,
+                "aspect_ratio": "3:2",  # 16:9 -> 3:2
+                "quality": "medium"  # 1K = medium
+            }
+        }
+    else:
+        # デフォルト
+        return {
+            "model": model,
+            "callBackUrl": callback_url,
+            "input": {
+                "prompt": prompt,
+                "image_urls": [image_url],
+                "aspect_ratio": "16:9"
+            }
+        }
+
+
 async def generate_parse_single(image_url: str, prompt: str, model: str) -> Optional[str]:
     """
     単一の画像生成タスクを実行
@@ -156,17 +221,8 @@ async def generate_parse_single(image_url: str, prompt: str, model: str) -> Opti
 
         callback_url = f"https://webhook.site/{wh_uuid}"
 
-        # タスク作成
-        task_payload = {
-            "model": model,
-            "callBackUrl": callback_url,
-            "input": {
-                "prompt": prompt,
-                "image_urls": [image_url],
-                "aspect_ratio": "16:9",
-                "quality": "high"
-            }
-        }
+        # モデルごとに適切なペイロードを構築
+        task_payload = build_task_payload(model, image_url, prompt, callback_url)
 
         task_id, error = await create_task(task_payload)
         if not task_id:
