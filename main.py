@@ -3,10 +3,11 @@ LINE Bot for AI Architectural Rendering
 住宅営業マン向けAIパース生成LINEボット
 """
 import os
-import asyncio
 import httpx
+import hmac
+import hashlib
+import base64
 from fastapi import FastAPI, Request, HTTPException, BackgroundTasks
-from linebot.v3 import WebhookHandler
 from linebot.v3.messaging import (
     Configuration,
     AsyncApiClient,
@@ -19,13 +20,6 @@ from linebot.v3.messaging import (
     QuickReplyItem,
     MessageAction,
 )
-from linebot.v3.webhooks import (
-    MessageEvent,
-    TextMessageContent,
-    ImageMessageContent,
-    FollowEvent,
-    PostbackEvent,
-)
 from linebot.v3.exceptions import InvalidSignatureError
 
 from config import settings
@@ -36,7 +30,6 @@ app = FastAPI(title="AI Parse LINE Bot")
 
 # LINE Bot設定
 configuration = Configuration(access_token=settings.LINE_CHANNEL_ACCESS_TOKEN)
-handler = WebhookHandler(settings.LINE_CHANNEL_SECRET)
 
 # ユーザーDB
 user_db = UserDB()
@@ -101,6 +94,17 @@ async def root():
     return {"status": "ok", "message": "AI Parse LINE Bot is running"}
 
 
+def validate_signature(body: bytes, signature: str) -> bool:
+    """LINE署名を検証"""
+    hash_value = hmac.new(
+        settings.LINE_CHANNEL_SECRET.encode('utf-8'),
+        body,
+        hashlib.sha256
+    ).digest()
+    expected_signature = base64.b64encode(hash_value).decode('utf-8')
+    return hmac.compare_digest(signature, expected_signature)
+
+
 @app.post("/webhook")
 async def webhook(request: Request, background_tasks: BackgroundTasks):
     """LINE Webhookエンドポイント"""
@@ -108,24 +112,118 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
     body = await request.body()
     body_text = body.decode("utf-8")
 
-    try:
-        handler.handle(body_text, signature)
-    except InvalidSignatureError:
+    # 署名検証
+    if not validate_signature(body, signature):
         raise HTTPException(status_code=400, detail="Invalid signature")
+
+    # 非同期イベント処理
+    background_tasks.add_task(handle_events_async, body_text, signature)
 
     return {"status": "ok"}
 
 
-@handler.add(FollowEvent)
-def handle_follow(event: FollowEvent):
-    """友達追加時の処理"""
-    user_id = event.source.user_id
+async def handle_events_async(body: str, signature: str):
+    """非同期でイベントを処理"""
+    import json
+    from linebot.v3.webhooks import Event
+
+    events_data = json.loads(body)
+
+    for event_data in events_data.get("events", []):
+        event_type = event_data.get("type")
+
+        if event_type == "follow":
+            await handle_follow_async(event_data)
+        elif event_type == "message":
+            message_type = event_data.get("message", {}).get("type")
+            if message_type == "image":
+                await handle_image_async(event_data)
+            elif message_type == "text":
+                await handle_text_async(event_data)
+
+
+async def handle_follow_async(event_data: dict):
+    """友達追加時の処理（非同期版）"""
+    user_id = event_data["source"]["userId"]
+    reply_token = event_data["replyToken"]
 
     # ユーザー登録
     user_db.create_user(user_id)
 
     # ウェルカムメッセージ
-    asyncio.create_task(send_welcome_message(user_id, event.reply_token))
+    await send_welcome_message(user_id, reply_token)
+
+
+async def handle_image_async(event_data: dict):
+    """画像受信時の処理（非同期版）"""
+    user_id = event_data["source"]["userId"]
+    message_id = event_data["message"]["id"]
+    reply_token = event_data["replyToken"]
+
+    # 無料枠チェック
+    remaining = user_db.get_remaining_count(user_id)
+    if remaining <= 0:
+        await send_limit_reached_message(user_id, reply_token)
+        return
+
+    # 画像を保存して状態を更新
+    user_states[user_id] = {
+        "image_message_id": message_id,
+        "status": "waiting_type"  # 内観/外観選択待ち
+    }
+
+    # 内観/外観選択を促す
+    await send_type_selection(user_id, reply_token)
+
+
+async def handle_text_async(event_data: dict):
+    """テキスト受信時の処理（非同期版）"""
+    user_id = event_data["source"]["userId"]
+    text = event_data["message"]["text"]
+    reply_token = event_data["replyToken"]
+
+    if user_id not in user_states:
+        # 画像を送るよう促す
+        await send_prompt_image_message(user_id, reply_token)
+        return
+
+    state = user_states[user_id]
+
+    # 内観/外観選択待ち
+    if state.get("status") == "waiting_type":
+        if text == "外観":
+            user_states[user_id]["parse_type"] = "exterior"
+            user_states[user_id]["status"] = "waiting_prompt"
+            await send_prompt_input_message(user_id, reply_token, "exterior")
+        elif text == "内観":
+            user_states[user_id]["parse_type"] = "interior"
+            user_states[user_id]["status"] = "waiting_prompt"
+            await send_prompt_input_message(user_id, reply_token, "interior")
+        else:
+            await send_type_selection(user_id, reply_token)
+        return
+
+    # プロンプト入力待ち
+    if state.get("status") == "waiting_prompt":
+        # カスタムプロンプトを取得（OKの場合は空）
+        custom_prompt = "" if text.upper() == "OK" else f"\n・{text}"
+        parse_type = state.get("parse_type", "exterior")
+
+        # 生成開始
+        await process_generation(
+            user_id,
+            state["image_message_id"],
+            parse_type,
+            custom_prompt,
+            reply_token
+        )
+        del user_states[user_id]
+        return
+
+    # その他
+    await send_prompt_image_message(user_id, reply_token)
+
+
 
 
 async def send_welcome_message(user_id: str, reply_token: str):
@@ -152,26 +250,6 @@ async def send_welcome_message(user_id: str, reply_token: str):
         )
 
 
-@handler.add(MessageEvent, message=ImageMessageContent)
-def handle_image(event: MessageEvent):
-    """画像受信時の処理"""
-    user_id = event.source.user_id
-    message_id = event.message.id
-
-    # 無料枠チェック
-    remaining = user_db.get_remaining_count(user_id)
-    if remaining <= 0:
-        asyncio.create_task(send_limit_reached_message(user_id, event.reply_token))
-        return
-
-    # 画像を保存して状態を更新
-    user_states[user_id] = {
-        "image_message_id": message_id,
-        "status": "waiting_type"  # 内観/外観選択待ち
-    }
-
-    # 内観/外観選択を促す
-    asyncio.create_task(send_type_selection(user_id, event.reply_token))
 
 
 async def send_type_selection(user_id: str, reply_token: str):
@@ -269,54 +347,6 @@ async def send_prompt_input_message(user_id: str, reply_token: str, parse_type: 
         )
 
 
-@handler.add(MessageEvent, message=TextMessageContent)
-def handle_text(event: MessageEvent):
-    """テキスト受信時の処理"""
-    user_id = event.source.user_id
-    text = event.message.text
-
-    if user_id not in user_states:
-        # 画像を送るよう促す
-        asyncio.create_task(send_prompt_image_message(user_id, event.reply_token))
-        return
-
-    state = user_states[user_id]
-
-    # 内観/外観選択待ち
-    if state.get("status") == "waiting_type":
-        if text == "外観":
-            user_states[user_id]["parse_type"] = "exterior"
-            user_states[user_id]["status"] = "waiting_prompt"
-            asyncio.create_task(send_prompt_input_message(user_id, event.reply_token, "exterior"))
-        elif text == "内観":
-            user_states[user_id]["parse_type"] = "interior"
-            user_states[user_id]["status"] = "waiting_prompt"
-            asyncio.create_task(send_prompt_input_message(user_id, event.reply_token, "interior"))
-        else:
-            asyncio.create_task(send_type_selection(user_id, event.reply_token))
-        return
-
-    # プロンプト入力待ち
-    if state.get("status") == "waiting_prompt":
-        # カスタムプロンプトを取得（OKの場合は空）
-        custom_prompt = "" if text.upper() == "OK" else f"\n・{text}"
-        parse_type = state.get("parse_type", "exterior")
-
-        # 生成開始
-        asyncio.create_task(
-            process_generation(
-                user_id,
-                state["image_message_id"],
-                parse_type,
-                custom_prompt,
-                event.reply_token
-            )
-        )
-        del user_states[user_id]
-        return
-
-    # その他
-    asyncio.create_task(send_prompt_image_message(user_id, event.reply_token))
 
 
 async def send_prompt_image_message(user_id: str, reply_token: str):
