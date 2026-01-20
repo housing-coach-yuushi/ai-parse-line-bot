@@ -636,37 +636,7 @@ async def send_welcome_message(user_id: str, reply_token: str):
 
 
 
-async def send_type_selection(user_id: str, reply_token: str):
-    """内観/外観選択メッセージ送信"""
-    async with AsyncApiClient(configuration) as api_client:
-        api = AsyncMessagingApi(api_client)
 
-        await api.reply_message(
-            ReplyMessageRequest(
-                reply_token=reply_token,
-                messages=[
-                    TextMessage(
-                        text="外観パースですか？内観パースですか？",
-                        quick_reply=QuickReply(
-                            items=[
-                                QuickReplyItem(
-                                    action=MessageAction(
-                                        label="外観",
-                                        text="外観"
-                                    )
-                                ),
-                                QuickReplyItem(
-                                    action=MessageAction(
-                                        label="内観",
-                                        text="内観"
-                                    )
-                                ),
-                            ]
-                        )
-                    )
-                ]
-            )
-        )
 
 
 async def send_prompt_input_message(user_id: str, reply_token: str, parse_type: str):
