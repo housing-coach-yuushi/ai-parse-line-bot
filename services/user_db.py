@@ -10,17 +10,27 @@ from datetime import datetime
 from typing import Optional
 from config import settings
 
+import json
+
 class UserDB:
     def __init__(self):
         self.sheet_id = settings.GOOGLE_SHEETS_ID
-        self.creds_path = settings.GOOGLE_SERVICE_ACCOUNT_KEY
         
         # スコープ設定
         scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
         
         try:
-            # 認証
-            self.creds = ServiceAccountCredentials.from_json_keyfile_name(self.creds_path, scope)
+            # 認証: 環境変数(JSON文字列)を優先
+            json_creds = os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON")
+            if json_creds:
+                print("Loading credentials from environment variable", flush=True)
+                creds_dict = json.loads(json_creds)
+                self.creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+            else:
+                # フォールバック: ファイルパス
+                print(f"Loading credentials from file: {settings.GOOGLE_SERVICE_ACCOUNT_KEY}", flush=True)
+                self.creds = ServiceAccountCredentials.from_json_keyfile_name(settings.GOOGLE_SERVICE_ACCOUNT_KEY, scope)
+
             self.client = gspread.authorize(self.creds)
             
             # スプレッドシートを開く

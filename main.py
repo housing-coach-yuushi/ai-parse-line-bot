@@ -108,15 +108,229 @@ INTERIOR_BASE_PROMPT = """添付の建築内観パースをフォトリアルに
 元画像の輪郭線と構造はそのまま、質感だけを高精細フォトリアルに仕上げてください。"""
 
 
+# 平面図用ベースプロンプト
+FLOOR_PLAN_BASE_PROMPT = """添付の平面図またはラフスケッチを、清書された美しい2D平面図（間取り図）に変換してください。
+3Dパースや立体的な表現にはせず、真上から見た完全な2D図面として出力してください。
+
+【必ず守ってほしい内容】
+・視点は必ず「真上からの2D（Top-down view）」であること。斜めや3D表示は禁止。
+・壁のラインは直線で見やすく、部屋の区画を明確にする。
+・部屋の配置、ドアや窓の位置関係は元画像を忠実に守る。
+・家具は配置されている場合、シンプルでモダンなシンボルとして書き起こす。
+
+【デザインのスタイル】
+・プロの不動産広告や建築プレゼンに使われるような、清潔感のあるデザイン。
+・床：フローリング部分は明るい木目（ナチュラルオークなど）。
+・水回り：タイル表現または清潔な白/ブルー系。
+・壁：白または薄いグレーで視認性を高く。
+・文字情報（部屋名など）は無理に生成せず、図面としての美しさを優先する。
+
+{custom_prompt}
+
+【重要】
+出力は必ず「2Dの平面図」にしてください。立体的なパース画像は生成しないでください。"""
+
+
 @app.get("/api/info")
 async def root():
     return {
         "status": "ok",
         "message": "AI Parse LINE Bot is running",
-        "version": "2.0",
+        "version": "2.1", # Version up
         "data_dir_exists": os.path.exists('/data'),
-        "db_path": user_db.db_path
+        "db_path": user_db.db_path if hasattr(user_db, 'db_path') else "Google Sheets"
     }
+
+# ... (health check and stripe webhook remain same)
+
+# ... (webhook and event handlers remain same)
+
+async def handle_text_async(event_data: dict):
+    """テキスト受信時の処理（非同期版）"""
+    try:
+        user_id = event_data["source"]["userId"]
+        text = event_data["message"]["text"]
+        reply_token = event_data["replyToken"]
+
+        if user_id not in user_states:
+            # 画像を送るよう促す
+            await send_prompt_image_message(user_id, reply_token)
+            return
+
+        state = user_states[user_id]
+        log(f"Current user state: {state}")
+
+        # タイプ選択待ち
+        if state.get("status") == "waiting_type":
+            if text == "外観":
+                user_states[user_id]["parse_type"] = "exterior"
+                user_states[user_id]["status"] = "waiting_prompt"
+                await send_prompt_input_message(user_id, reply_token, "exterior")
+            elif text == "内観":
+                user_states[user_id]["parse_type"] = "interior"
+                user_states[user_id]["status"] = "waiting_prompt"
+                await send_prompt_input_message(user_id, reply_token, "interior")
+            elif text == "平面図":
+                user_states[user_id]["parse_type"] = "floor_plan"
+                user_states[user_id]["status"] = "waiting_prompt"
+                await send_prompt_input_message(user_id, reply_token, "floor_plan")
+            else:
+                await send_type_selection(user_id, reply_token)
+            return
+
+        # プロンプト入力待ち
+        if state.get("status") == "waiting_prompt":
+            # カスタムプロンプトを取得（OKの場合は空）
+            custom_prompt = "" if text.upper() == "OK" else f"\n・{text}"
+            parse_type = state.get("parse_type", "exterior")
+
+            # 生成開始
+            await process_generation(
+                user_id,
+                state["image_message_id"],
+                parse_type,
+                custom_prompt,
+                reply_token
+            )
+            del user_states[user_id]
+            return
+
+        # その他
+        await send_prompt_image_message(user_id, reply_token)
+    except Exception as e:
+        log(f"Error in handle_text_async: {e}")
+        import traceback
+        traceback.print_exc()
+
+
+# ... (send_welcome_message remains same)
+
+async def send_type_selection(user_id: str, reply_token: str):
+    """タイプ選択メッセージ送信"""
+    async with AsyncApiClient(configuration) as api_client:
+        api = AsyncMessagingApi(api_client)
+
+        await api.reply_message(
+            ReplyMessageRequest(
+                reply_token=reply_token,
+                messages=[
+                    TextMessage(
+                        text="生成するタイプを選んでください。",
+                        quick_reply=QuickReply(
+                            items=[
+                                QuickReplyItem(
+                                    action=MessageAction(
+                                        label="外観",
+                                        text="外観"
+                                    )
+                                ),
+                                QuickReplyItem(
+                                    action=MessageAction(
+                                        label="内観",
+                                        text="内観"
+                                    )
+                                ),
+                                QuickReplyItem(
+                                    action=MessageAction(
+                                        label="平面図",
+                                        text="平面図"
+                                    )
+                                ),
+                            ]
+                        )
+                    )
+                ]
+            )
+        )
+
+
+async def send_prompt_input_message(user_id: str, reply_token: str, parse_type: str):
+    """カスタムプロンプト入力メッセージ送信"""
+    async with AsyncApiClient(configuration) as api_client:
+        api = AsyncMessagingApi(api_client)
+
+        if parse_type == "exterior":
+            example_text = ("追加の指示があれば入力してください。\n\n"
+                           "例：\n"
+                           "・モダンな雰囲気で\n"
+                           "・和風テイストに\n"
+                           "・外壁をブラックに\n\n"
+                           "そのまま生成する場合は「OK」と送信してください。")
+            quick_reply_items = [
+                QuickReplyItem(action=MessageAction(label="そのまま生成", text="OK")),
+                QuickReplyItem(action=MessageAction(label="モダン", text="モダンな雰囲気で")),
+                QuickReplyItem(action=MessageAction(label="和風", text="和風テイストで")),
+            ]
+        elif parse_type == "interior":
+            example_text = ("追加の指示があれば入力してください。\n\n"
+                           "例：\n"
+                           "・モダンな雰囲気で\n"
+                           "・北欧風インテリアに\n"
+                           "・床を明るい木目に\n\n"
+                           "そのまま生成する場合は「OK」と送信してください。")
+            quick_reply_items = [
+                QuickReplyItem(action=MessageAction(label="そのまま生成", text="OK")),
+                QuickReplyItem(action=MessageAction(label="モダン", text="モダンな雰囲気で")),
+                QuickReplyItem(action=MessageAction(label="北欧風", text="北欧風インテリアで")),
+            ]
+        else: # floor_plan
+            example_text = ("追加の指示があれば入力してください。\n\n"
+                           "例：\n"
+                           "・木目でナチュラルに\n"
+                           "・モノトーンでシックに\n"
+                           "・部屋名を英語表記に\n\n"
+                           "そのまま生成する場合は「OK」と送信してください。")
+            quick_reply_items = [
+                QuickReplyItem(action=MessageAction(label="そのまま生成", text="OK")),
+                QuickReplyItem(action=MessageAction(label="ナチュラル", text="木目でナチュラルな雰囲気に")),
+                QuickReplyItem(action=MessageAction(label="シック", text="モノトーンでシックな雰囲気に")),
+            ]
+
+        await api.reply_message(
+            ReplyMessageRequest(
+                reply_token=reply_token,
+                messages=[
+                    TextMessage(
+                        text=example_text,
+                        quick_reply=QuickReply(items=quick_reply_items)
+                    )
+                ]
+            )
+        )
+
+# ... (send_prompt_image_message, send_limit_reached_message remain same)
+
+async def process_generation(user_id: str, image_message_id: str, parse_type: str, custom_prompt: str, reply_token: str):
+    """画像生成処理"""
+    async with AsyncApiClient(configuration) as api_client:
+        api = AsyncMessagingApi(api_client)
+
+        # 処理開始メッセージ
+        await api.reply_message(
+            ReplyMessageRequest(
+                reply_token=reply_token,
+                messages=[
+                    TextMessage(text="✨ 4枚の画像を生成中です...\n⏱️ 完成した画像から順次お届けします！")
+                ]
+            )
+        )
+
+        try:
+            # LINE から画像を取得
+            image_content = await get_line_image(image_message_id)
+
+            # プロンプト生成
+            if parse_type == "interior":
+                prompt = INTERIOR_BASE_PROMPT.format(custom_prompt=custom_prompt)
+                type_name = "内観"
+            elif parse_type == "exterior":
+                prompt = EXTERIOR_BASE_PROMPT.format(custom_prompt=custom_prompt)
+                type_name = "外観"
+            else: # floor_plan
+                prompt = FLOOR_PLAN_BASE_PROMPT.format(custom_prompt=custom_prompt)
+                type_name = "平面図"
+            
+            # ... (rest of the function logic regarding generation loop)
 
 
 @app.get("/health")
