@@ -551,65 +551,6 @@ async def handle_image_async(event_data: dict):
         traceback.print_exc()
 
 
-async def handle_text_async(event_data: dict):
-    """テキスト受信時の処理（非同期版）"""
-    try:
-        user_id = event_data["source"]["userId"]
-        text = event_data["message"]["text"]
-        reply_token = event_data["replyToken"]
-
-        log(f"Text received from user: {user_id}, text: {text}")
-
-        if user_id not in user_states:
-            # 画像を送るよう促す
-            await send_prompt_image_message(user_id, reply_token)
-            return
-
-        state = user_states[user_id]
-        log(f"Current user state: {state}")
-
-        # 内観/外観選択待ち
-        if state.get("status") == "waiting_type":
-            if text == "外観":
-                user_states[user_id]["parse_type"] = "exterior"
-                user_states[user_id]["status"] = "waiting_prompt"
-                await send_prompt_input_message(user_id, reply_token, "exterior")
-            elif text == "内観":
-                user_states[user_id]["parse_type"] = "interior"
-                user_states[user_id]["status"] = "waiting_prompt"
-                await send_prompt_input_message(user_id, reply_token, "interior")
-            else:
-                await send_type_selection(user_id, reply_token)
-            return
-
-        # プロンプト入力待ち
-        if state.get("status") == "waiting_prompt":
-            # カスタムプロンプトを取得（OKの場合は空）
-            custom_prompt = "" if text.upper() == "OK" else f"\n・{text}"
-            parse_type = state.get("parse_type", "exterior")
-
-            # 生成開始
-            await process_generation(
-                user_id,
-                state["image_message_id"],
-                parse_type,
-                custom_prompt,
-                reply_token
-            )
-            del user_states[user_id]
-            log(f"User state deleted after generation")
-            return
-
-        # その他
-        await send_prompt_image_message(user_id, reply_token)
-    except Exception as e:
-        log(f"Error in handle_text_async: {e}")
-        import traceback
-        traceback.print_exc()
-
-
-
-
 async def send_welcome_message(user_id: str, reply_token: str):
     """ウェルカムメッセージ送信"""
     async with AsyncApiClient(configuration) as api_client:
