@@ -28,6 +28,12 @@ from services.kie_api import generate_parse_multi
 from services.user_db import UserDB
 from services.stripe_service import stripe_service
 
+def log(message: str):
+    """ログ出力（標準出力を即座にフラッシュ）"""
+    print(message, flush=True)
+    sys.stdout.flush()
+
+
 app = FastAPI(title="AI Parse LINE Bot")
 
 # 起動時ログ
@@ -47,12 +53,6 @@ user_db = UserDB()
 
 # ユーザーの状態管理（メモリ上、本番はRedis推奨）
 user_states = {}
-
-
-def log(message: str):
-    """ログ出力（標準出力を即座にフラッシュ）"""
-    print(message, flush=True)
-    sys.stdout.flush()
 
 # 外観用ベースプロンプト
 EXTERIOR_BASE_PROMPT = """添付の建築パースをフォトリアルにしてください。
