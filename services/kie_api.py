@@ -280,6 +280,8 @@ async def generate_parse_multi(image_bytes: bytes, prompt: str, count: int = 4, 
     Returns:
         生成された画像のURLリスト
     """
+    import sys
+
     # 使用する4つの異なるモデル/エンジン（元々のもの）
     MODELS = [
         "nano-banana-pro",
@@ -289,29 +291,52 @@ async def generate_parse_multi(image_bytes: bytes, prompt: str, count: int = 4, 
     ]
 
     try:
+        print(f"[KIE] Starting multi-generation with {count} models", flush=True)
+        sys.stdout.flush()
+
         # 1. 画像をBase64に変換
         base64_image = image_bytes_to_base64(image_bytes)
+        print(f"[KIE] Image converted to base64", flush=True)
+        sys.stdout.flush()
 
         # 2. 画像をアップロード（1回だけ）
         image_url = await upload_image(base64_image)
         if not image_url:
-            print("Image upload failed")
+            print("[KIE] Image upload failed", flush=True)
+            sys.stdout.flush()
             return [None] * count
+
+        print(f"[KIE] Image uploaded: {image_url[:50]}...", flush=True)
+        sys.stdout.flush()
 
         # 3. 4つのモデルで同時生成（1枚ごとにコールバック）
         urls = [None] * count
 
         async def generate_with_callback(index: int, model: str):
             """1枚生成してコールバックを呼ぶ"""
+            print(f"[KIE] Starting generation {index} with model: {model}", flush=True)
+            sys.stdout.flush()
+
             result = await generate_parse_single(image_url, prompt, model)
             urls[index] = result
+
+            if result:
+                print(f"[KIE] Generation {index} ({model}) completed: {result[:50]}...", flush=True)
+            else:
+                print(f"[KIE] Generation {index} ({model}) failed", flush=True)
+            sys.stdout.flush()
 
             # コールバックがあれば即座に呼ぶ
             if callback and result:
                 try:
+                    print(f"[KIE] Calling callback for generation {index}", flush=True)
+                    sys.stdout.flush()
                     await callback(index, result)
+                    print(f"[KIE] Callback {index} completed", flush=True)
+                    sys.stdout.flush()
                 except Exception as e:
-                    print(f"Callback error: {e}")
+                    print(f"[KIE] Callback error for {index}: {e}", flush=True)
+                    sys.stdout.flush()
 
             return result
 
@@ -321,10 +346,19 @@ async def generate_parse_multi(image_bytes: bytes, prompt: str, count: int = 4, 
             model = MODELS[i]
             tasks.append(generate_with_callback(i, model))
 
-        await asyncio.gather(*tasks, return_exceptions=True)
+        print(f"[KIE] Launching {len(tasks)} parallel tasks", flush=True)
+        sys.stdout.flush()
+
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        print(f"[KIE] All tasks completed. Results: {[type(r).__name__ if isinstance(r, Exception) else ('success' if r else 'failed') for r in results]}", flush=True)
+        sys.stdout.flush()
 
         return urls
 
     except Exception as e:
-        print(f"Multi-generation error: {e}")
+        print(f"[KIE] Multi-generation error: {e}", flush=True)
+        sys.stdout.flush()
+        import traceback
+        traceback.print_exc()
         return [None] * count
