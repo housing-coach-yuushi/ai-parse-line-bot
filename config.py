@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     FREE_MONTHLY_LIMIT: int = 3
 
     # プレミアム枠
-    PREMIUM_MONTHLY_LIMIT: int = 15
+    PREMIUM_MONTHLY_LIMIT: int = 20
 
     # Stripe決済
     STRIPE_SECRET_KEY: str = ""

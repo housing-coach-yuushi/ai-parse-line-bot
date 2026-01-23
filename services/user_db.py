@@ -139,7 +139,7 @@ class UserDB:
             
         used = self.get_monthly_usage(user_id)
         
-        # プレミアムユーザーは月15回
+        # プレミアムユーザーは月20回
         if user and user["is_premium"]:
             if user["premium_expires_at"]:
                 try:

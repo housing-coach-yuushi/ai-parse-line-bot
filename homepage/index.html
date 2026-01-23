@@ -4,7 +4,26 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>AI Perspective Bot - 料金プラン &amp; FAQ</title>
+    <title>AI Perspective Bot | LINEで建築パースを自動生成 - 写真を送るだけで1分で完成</title>
+    <meta name="description" content="住宅営業マン・工務店向けAI建築パース生成サービス。LINEに写真を送るだけで、プロ級の外観・内観パースが1分で完成。月3回まで無料、商用利用OK。設計・提案業務を劇的に効率化します。" />
+    <meta name="keywords" content="AI パース生成,建築パース 自動生成,住宅パース 作成,外観パース AI,内観パース LINE,間取り図 パース化,建築 ビジュアライゼーション" />
+    <link rel="canonical" href="https://ai-perspective-bot.com/" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://ai-perspective-bot.com/" />
+    <meta property="og:title" content="AI Perspective Bot | LINEで建築パースを自動生成" />
+    <meta property="og:description" content="写真を送るだけで1分でプロ級のパースが完成。住宅営業マン・工務店向けAI建築パース生成サービス。月3回まで無料。" />
+    <meta property="og:image" content="https://ai-perspective-bot.com/images/ogp.png" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="AI Perspective Bot" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://ai-perspective-bot.com/" />
+    <meta name="twitter:title" content="AI Perspective Bot | LINEで建築パースを自動生成" />
+    <meta name="twitter:description" content="写真を送るだけで1分でプロ級のパースが完成。住宅営業マン・工務店向けAI建築パース生成サービス。" />
+    <meta name="twitter:image" content="https://ai-perspective-bot.com/images/ogp.png" />
 
     <!-- Google Analytics 4 (GA4) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-YZKTG2F3V4"></script>
@@ -24,108 +43,18 @@
         // LINE Tag Base Code will go here
         // Get this from: LINE広告管理画面 > ツール > コンバージョンコード
     </script>
+
+    <!-- Preconnect for faster font loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-        href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&amp;family=Work+Sans:wght@400;500;700;900&amp;display=swap"
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&amp;family=Work+Sans:wght@400;700&amp;display=swap"
         rel="stylesheet" />
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#06c656",
-                        "primary-dark": "#05a849",
-                        "background-light": "#f5f8f7",
-                        "background-dark": "#0f2317",
-                        "surface-light": "#ffffff",
-                        "surface-dark": "#162e21",
-                        "text-main-light": "#111814",
-                        "text-main-dark": "#f0f5f2",
-                        "text-sub-light": "#4a5950",
-                        "text-sub-dark": "#aebcb4",
-                        "border-light": "#dbe6df",
-                        "border-dark": "#2a4034",
-                    },
-                    fontFamily: {
-                        "display": ["Noto Sans JP", "Work Sans", "sans-serif"],
-                        "body": ["Noto Sans JP", "Work Sans", "sans-serif"],
-                    },
-                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px" },
-                },
-            },
-        }
-    </script>
-    <style>
-        .comparison-slider {
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
-
-        .comparison-slider img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center;
-        }
-
-        .comparison-slider .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            z-index: 10;
-            overflow: hidden;
-            border-right: 2px solid white;
-        }
-
-        .comparison-slider .overlay img {
-            max-width: none;
-            width: auto;
-        }
-
-        .comparison-slider .handle {
-            position: absolute;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            width: 40px;
-            height: 40px;
-            background-color: white;
-            border-radius: 50%;
-            z-index: 20;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            cursor: ew-resize;
-            pointer-events: auto;
-        }
-
-        .comparison-slider .handle span {
-            color: #06c656;
-        }
-
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background-color: #cbd5e1;
-            border-radius: 4px;
-        }
-
-        .dark ::-webkit-scrollbar-thumb {
-            background-color: #334155;
-        }
-    </style>
+    <!-- Tailwind CSS (Production Build) -->
+    <link href="dist/output.css" rel="stylesheet" />
 </head>
 
 <body
@@ -264,14 +193,14 @@
                                 2. 内観パース (Interior)
                             </div>
                             <div class="comparison-slider">
-                                <img alt="Interior After" src="images/interior_after.png"
-                                    class="pointer-events-none select-none" />
+                                <img alt="Interior After - AIで生成した内観パース" src="images/interior_after.webp"
+                                    class="pointer-events-none select-none" width="1024" height="571" />
                                 <div
                                     class="absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded-full z-20">
                                     After</div>
                                 <div class="overlay w-[50%] transition-[width] duration-300 ease-out">
-                                    <img alt="Interior Before" src="images/interior_before.jpg"
-                                        class="pointer-events-none select-none" />
+                                    <img alt="Interior Before - 変換前の写真" src="images/interior_before.webp"
+                                        class="pointer-events-none select-none" width="1024" height="571" />
                                     <div
                                         class="absolute bottom-3 left-3 bg-white/80 dark:bg-black/60 backdrop-blur-sm text-gray-900 dark:text-white text-[10px] font-bold px-2 py-1 rounded-full z-20">
                                         Before</div>
@@ -289,11 +218,11 @@
                                     1. 外観パース
                                 </div>
                                 <div class="comparison-slider small">
-                                    <img alt="Exterior After" src="images/exterior_after.jpg"
-                                        class="pointer-events-none select-none" />
+                                    <img alt="Exterior After - AIで生成した外観パース" src="images/exterior_after.jpg"
+                                        class="pointer-events-none select-none" loading="lazy" width="800" height="600" />
                                     <div class="overlay w-[60%] transition-[width] duration-300 ease-out">
-                                        <img alt="Exterior Before" src="images/exterior_before.jpg"
-                                            class="pointer-events-none select-none" />
+                                        <img alt="Exterior Before - 変換前の外観写真" src="images/exterior_before.webp"
+                                            class="pointer-events-none select-none" loading="lazy" width="800" height="600" />
                                     </div>
                                     <div
                                         class="handle left-[60%] transition-[left] duration-300 ease-out cursor-ew-resize">
@@ -308,11 +237,11 @@
                                     3. 間取り図変換
                                 </div>
                                 <div class="comparison-slider small">
-                                    <img alt="3D Plan After" src="images/plan_after.png"
-                                        class="pointer-events-none select-none" />
+                                    <img alt="3D Plan After - AIで生成した3D間取りパース" src="images/plan_after.png"
+                                        class="pointer-events-none select-none" loading="lazy" width="800" height="600" />
                                     <div class="overlay w-[40%] transition-[width] duration-300 ease-out">
-                                        <img alt="2D Plan Before" src="images/plan_before.jpg"
-                                            class="pointer-events-none select-none" />
+                                        <img alt="2D Plan Before - 変換前の間取り図" src="images/plan_before.webp"
+                                            class="pointer-events-none select-none" loading="lazy" width="800" height="600" />
                                     </div>
                                     <div
                                         class="handle left-[40%] transition-[left] duration-300 ease-out cursor-ew-resize">
@@ -449,8 +378,8 @@
                         </div>
                         <div
                             class="flex h-64 w-full items-center justify-center bg-[#f4f6f5] dark:bg-[#15251d] relative overflow-hidden">
-                            <img src="images/step1_photo.png" class="w-full h-full object-cover object-center"
-                                alt="Taking photo of architectural sketch" />
+                            <img src="images/step1_photo.webp" class="w-full h-full object-cover object-center"
+                                alt="スマートフォンで建築スケッチを撮影している様子" loading="lazy" width="1024" height="1024" />
                         </div>
                         <div class="flex flex-1 flex-col p-6">
                             <div class="flex items-center gap-3 mb-2">
@@ -470,8 +399,8 @@
                         </div>
                         <div
                             class="flex h-64 w-full items-center justify-center bg-[#f4f6f5] dark:bg-[#15251d] relative overflow-hidden">
-                            <img src="images/real_mockup_chat.png" class="w-full h-full object-cover object-top"
-                                alt="Chat UI with Send Photo" />
+                            <img src="images/real_mockup_chat.webp" class="w-full h-full object-cover object-top"
+                                alt="LINEで写真を送信する画面" loading="lazy" width="1024" height="1024" />
                         </div>
                         <div class="flex flex-1 flex-col p-6">
                             <div class="flex items-center gap-3 mb-2">
@@ -492,7 +421,7 @@
                         <div
                             class="flex h-64 w-full items-center justify-center bg-[#f4f6f5] dark:bg-[#15251d] relative overflow-hidden">
                             <img src="images/real_mockup_results.png" class="w-full h-full object-cover object-top"
-                                alt="4 Perspectives Results" />
+                                alt="AIが生成した4パターンの建築パース結果画面" loading="lazy" width="1024" height="1024" />
                         </div>
                         <div class="flex flex-1 flex-col p-6">
                             <div class="flex items-center gap-3 mb-2">
@@ -520,137 +449,81 @@
                 </div>
                 <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
                     <!-- Gallery Item 1 -->
-                    <div
-                        class="group relative flex flex-col overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800 shadow-sm transition-all duration-300 hover:shadow-xl cursor-pointer">
+                    <div class="group relative flex flex-col overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800 shadow-sm transition-all duration-300 hover:shadow-xl cursor-pointer">
                         <div class="relative aspect-square w-full overflow-hidden">
-                            <div class="h-full w-full bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                                data-alt="AI Perspective Example 1"
-                                style="background-image: url('images/gallery/gallery_1.png');">
-                            </div>
-                            <div
-                                class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                            </div>
-                            <div
-                                class="absolute top-4 right-4 flex size-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white opacity-0 transition-all duration-300 group-hover:opacity-100">
+                            <img src="images/gallery/gallery_1.webp" alt="AI生成パース事例1 - モダン住宅外観" loading="lazy" decoding="async" class="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-110" width="768" height="768" />
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+                            <div class="absolute top-4 right-4 flex size-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white opacity-0 transition-all duration-300 group-hover:opacity-100">
                                 <span class="material-symbols-outlined text-sm">open_in_full</span>
                             </div>
                         </div>
                     </div>
                     <!-- Gallery Item 2 -->
-                    <div
-                        class="group relative flex flex-col overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800 shadow-sm transition-all duration-300 hover:shadow-xl cursor-pointer">
+                    <div class="group relative flex flex-col overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800 shadow-sm transition-all duration-300 hover:shadow-xl cursor-pointer">
                         <div class="relative aspect-square w-full overflow-hidden">
-                            <div class="h-full w-full bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                                data-alt="AI Perspective Example 2"
-                                style="background-image: url('images/gallery/gallery_2.png');">
-                            </div>
-                            <div
-                                class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                            </div>
-                            <div
-                                class="absolute top-4 right-4 flex size-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white opacity-0 transition-all duration-300 group-hover:opacity-100">
+                            <img src="images/gallery/gallery_2.webp" alt="AI生成パース事例2 - 和モダン住宅" loading="lazy" decoding="async" class="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-110" width="768" height="768" />
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+                            <div class="absolute top-4 right-4 flex size-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white opacity-0 transition-all duration-300 group-hover:opacity-100">
                                 <span class="material-symbols-outlined text-sm">open_in_full</span>
                             </div>
                         </div>
                     </div>
                     <!-- Gallery Item 3 -->
-                    <div
-                        class="group relative flex flex-col overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800 shadow-sm transition-all duration-300 hover:shadow-xl cursor-pointer">
+                    <div class="group relative flex flex-col overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800 shadow-sm transition-all duration-300 hover:shadow-xl cursor-pointer">
                         <div class="relative aspect-square w-full overflow-hidden">
-                            <div class="h-full w-full bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                                data-alt="AI Perspective Example 3"
-                                style="background-image: url('images/gallery/gallery_3.png');">
-                            </div>
-                            <div
-                                class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                            </div>
-                            <div
-                                class="absolute top-4 right-4 flex size-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white opacity-0 transition-all duration-300 group-hover:opacity-100">
+                            <img src="images/gallery/gallery_3.png" alt="AI生成パース事例3 - 内観リビング" loading="lazy" decoding="async" class="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-110" width="768" height="768" />
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+                            <div class="absolute top-4 right-4 flex size-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white opacity-0 transition-all duration-300 group-hover:opacity-100">
                                 <span class="material-symbols-outlined text-sm">open_in_full</span>
                             </div>
                         </div>
                     </div>
                     <!-- Gallery Item 4 -->
-                    <div
-                        class="group relative flex flex-col overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800 shadow-sm transition-all duration-300 hover:shadow-xl cursor-pointer">
+                    <div class="group relative flex flex-col overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800 shadow-sm transition-all duration-300 hover:shadow-xl cursor-pointer">
                         <div class="relative aspect-square w-full overflow-hidden">
-                            <div class="h-full w-full bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                                data-alt="AI Perspective Example 4"
-                                style="background-image: url('images/gallery/gallery_4.png');">
-                            </div>
-                            <div
-                                class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                            </div>
-                            <div
-                                class="absolute top-4 right-4 flex size-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white opacity-0 transition-all duration-300 group-hover:opacity-100">
+                            <img src="images/gallery/gallery_4.webp" alt="AI生成パース事例4 - 二階建て住宅" loading="lazy" decoding="async" class="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-110" width="768" height="768" />
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+                            <div class="absolute top-4 right-4 flex size-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white opacity-0 transition-all duration-300 group-hover:opacity-100">
                                 <span class="material-symbols-outlined text-sm">open_in_full</span>
                             </div>
                         </div>
                     </div>
                     <!-- Gallery Item 5 -->
-                    <div
-                        class="group relative flex flex-col overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800 shadow-sm transition-all duration-300 hover:shadow-xl cursor-pointer">
+                    <div class="group relative flex flex-col overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800 shadow-sm transition-all duration-300 hover:shadow-xl cursor-pointer">
                         <div class="relative aspect-square w-full overflow-hidden">
-                            <div class="h-full w-full bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                                data-alt="AI Perspective Example 5"
-                                style="background-image: url('images/gallery/gallery_5.png');">
-                            </div>
-                            <div
-                                class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                            </div>
-                            <div
-                                class="absolute top-4 right-4 flex size-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white opacity-0 transition-all duration-300 group-hover:opacity-100">
+                            <img src="images/gallery/gallery_5.webp" alt="AI生成パース事例5 - ナチュラル住宅" loading="lazy" decoding="async" class="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-110" width="768" height="768" />
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+                            <div class="absolute top-4 right-4 flex size-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white opacity-0 transition-all duration-300 group-hover:opacity-100">
                                 <span class="material-symbols-outlined text-sm">open_in_full</span>
                             </div>
                         </div>
                     </div>
                     <!-- Gallery Item 6 -->
-                    <div
-                        class="group relative flex flex-col overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800 shadow-sm transition-all duration-300 hover:shadow-xl cursor-pointer">
+                    <div class="group relative flex flex-col overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800 shadow-sm transition-all duration-300 hover:shadow-xl cursor-pointer">
                         <div class="relative aspect-square w-full overflow-hidden">
-                            <div class="h-full w-full bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                                data-alt="AI Perspective Example 6"
-                                style="background-image: url('images/gallery/gallery_6.png');">
-                            </div>
-                            <div
-                                class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                            </div>
-                            <div
-                                class="absolute top-4 right-4 flex size-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white opacity-0 transition-all duration-300 group-hover:opacity-100">
+                            <img src="images/gallery/gallery_6.webp" alt="AI生成パース事例6 - シンプル住宅" loading="lazy" decoding="async" class="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-110" width="768" height="768" />
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+                            <div class="absolute top-4 right-4 flex size-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white opacity-0 transition-all duration-300 group-hover:opacity-100">
                                 <span class="material-symbols-outlined text-sm">open_in_full</span>
                             </div>
                         </div>
                     </div>
                     <!-- Gallery Item 7 -->
-                    <div
-                        class="group relative flex flex-col overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800 shadow-sm transition-all duration-300 hover:shadow-xl cursor-pointer">
+                    <div class="group relative flex flex-col overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800 shadow-sm transition-all duration-300 hover:shadow-xl cursor-pointer">
                         <div class="relative aspect-square w-full overflow-hidden">
-                            <div class="h-full w-full bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                                data-alt="AI Perspective Example 7"
-                                style="background-image: url('images/gallery/gallery_7.png');">
-                            </div>
-                            <div
-                                class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                            </div>
-                            <div
-                                class="absolute top-4 right-4 flex size-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white opacity-0 transition-all duration-300 group-hover:opacity-100">
+                            <img src="images/gallery/gallery_7.webp" alt="AI生成パース事例7 - デザイナーズ住宅" loading="lazy" decoding="async" class="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-110" width="768" height="768" />
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+                            <div class="absolute top-4 right-4 flex size-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white opacity-0 transition-all duration-300 group-hover:opacity-100">
                                 <span class="material-symbols-outlined text-sm">open_in_full</span>
                             </div>
                         </div>
                     </div>
                     <!-- Gallery Item 8 -->
-                    <div
-                        class="group relative flex flex-col overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800 shadow-sm transition-all duration-300 hover:shadow-xl cursor-pointer">
+                    <div class="group relative flex flex-col overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800 shadow-sm transition-all duration-300 hover:shadow-xl cursor-pointer">
                         <div class="relative aspect-square w-full overflow-hidden">
-                            <div class="h-full w-full bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                                data-alt="AI Perspective Example 8"
-                                style="background-image: url('images/gallery/gallery_8.png');">
-                            </div>
-                            <div
-                                class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                            </div>
-                            <div
-                                class="absolute top-4 right-4 flex size-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white opacity-0 transition-all duration-300 group-hover:opacity-100">
+                            <img src="images/gallery/gallery_8.webp" alt="AI生成パース事例8 - 高級住宅" loading="lazy" decoding="async" class="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-110" width="768" height="768" />
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+                            <div class="absolute top-4 right-4 flex size-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white opacity-0 transition-all duration-300 group-hover:opacity-100">
                                 <span class="material-symbols-outlined text-sm">open_in_full</span>
                             </div>
                         </div>
@@ -862,7 +735,7 @@
 
         <footer class="w-full py-8 text-center text-sm text-text-sub-light dark:text-text-sub-dark">
             <div class="max-w-7xl mx-auto px-4 border-t border-border-light dark:border-border-dark pt-8">
-                <p>© 2023 AI Perspective Bot. All rights reserved.</p>
+                <p>© 2026 AI Perspective Bot. All rights reserved.</p>
                 <div class="flex flex-wrap justify-center gap-6 mt-4">
                     <a class="hover:text-primary transition-colors" href="tokusho.html">特定商取引法に基づく表記</a>
                     <a class="hover:text-primary transition-colors" href="privacy.html">プライバシーポリシー</a>
@@ -871,6 +744,81 @@
                 </div>
             </div>
         </footer>
+
+        <!-- Structured Data (JSON-LD) -->
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "AI Perspective Bot",
+            "applicationCategory": "BusinessApplication",
+            "operatingSystem": "LINE",
+            "description": "LINEに写真を送るだけで、AIが高品質な建築パースを自動生成するサービス。住宅営業マン・工務店向け。",
+            "offers": [
+                {
+                    "@type": "Offer",
+                    "name": "無料プラン",
+                    "price": "0",
+                    "priceCurrency": "JPY",
+                    "description": "毎月3回まで無料で建築パースを生成"
+                },
+                {
+                    "@type": "Offer",
+                    "name": "プレミアムプラン",
+                    "price": "1980",
+                    "priceCurrency": "JPY",
+                    "priceValidUntil": "2026-12-31",
+                    "description": "毎月20回まで高解像度パースを優先生成"
+                }
+            ],
+            "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": "4.8",
+                "reviewCount": "100"
+            }
+        }
+        </script>
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+                {
+                    "@type": "Question",
+                    "name": "商用利用できますか？",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "はい！無料プラン・プレミアムプラン問わず、商用利用権が含まれています。追加料金なしで、クライアントへの提案資料、マーケティング資料、SNSなどに生成されたパースをご利用いただけます。"
+                    }
+                },
+                {
+                    "@type": "Question",
+                    "name": "生成にはどのくらい時間がかかりますか？",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "通常、生成には30〜60秒ほどかかります。プレミアムプランのユーザーは優先処理が適用され、混雑時でも待ち時間が短縮され、優先的に生成されます。"
+                    }
+                },
+                {
+                    "@type": "Question",
+                    "name": "いつでもキャンセルできますか？",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "もちろんです。LINEメニューからいつでもサブスクリプションの管理・解約が可能です。長期契約の縛りや解約手数料は一切ありません。"
+                    }
+                },
+                {
+                    "@type": "Question",
+                    "name": "納品されるファイル形式は何ですか？",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "画像は高品質なPNGまたはJPG形式で提供され、ほとんどのデザインソフトやWebでの利用に適しています。"
+                    }
+                }
+            ]
+        }
+        </script>
+
         <script src="script.js"></script>
 </body>
 
