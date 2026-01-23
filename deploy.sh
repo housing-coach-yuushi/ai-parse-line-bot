@@ -23,7 +23,7 @@ fi
 
 # オプション環境変数のデフォルト値
 REGION=${REGION:-asia-northeast1}
-SERVICE_NAME=${SERVICE_NAME:-nakashima-linebot}
+SERVICE_NAME=${SERVICE_NAME:-ai-parse-line-bot}
 IMAGE_NAME="gcr.io/${GCP_PROJECT_ID}/${SERVICE_NAME}"
 
 echo -e "${YELLOW}設定確認:${NC}"
@@ -60,11 +60,8 @@ done
 echo -e "${GREEN}[1/5] GCP プロジェクトの設定${NC}"
 gcloud config set project "$GCP_PROJECT_ID"
 
-echo -e "${GREEN}[2/5] Docker イメージのビルド${NC}"
-docker build -t "$IMAGE_NAME:latest" .
-
-echo -e "${GREEN}[3/5] Docker イメージのプッシュ${NC}"
-docker push "$IMAGE_NAME:latest"
+echo -e "${GREEN}[2/5] Cloud Build でイメージをビルド＆プッシュ${NC}"
+gcloud builds submit --tag "$IMAGE_NAME:latest" .
 
 echo -e "${GREEN}[4/5] Cloud Run へのデプロイ${NC}"
 
