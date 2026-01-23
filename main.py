@@ -164,6 +164,18 @@ async def handle_text_async(event_data: dict):
 
         # プロンプト入力待ち
         if state.get("status") == "waiting_prompt":
+            # 「指示する」が選択された場合
+            if text == "指示する":
+                async with AsyncApiClient(configuration) as api_client:
+                    api = AsyncMessagingApi(api_client)
+                    await api.reply_message(
+                        ReplyMessageRequest(
+                            reply_token=reply_token,
+                            messages=[TextMessage(text="詳しい指示を入力してください。\n\n例：\n・モダンな雰囲気で\n・和風テイストに\n・外壁をブラックに")]
+                        )
+                    )
+                return
+
             # カスタムプロンプトを取得（OKの場合は空）
             custom_prompt = "" if text.upper() == "OK" else f"\n・{text}"
             parse_type = state.get("parse_type", "exterior")
@@ -199,7 +211,7 @@ async def send_type_selection(user_id: str, reply_token: str):
                 reply_token=reply_token,
                 messages=[
                     TextMessage(
-                        text="生成するタイプを選んでください。",
+                        text="送った画像はなんですか？",
                         quick_reply=QuickReply(
                             items=[
                                 QuickReplyItem(
@@ -235,39 +247,30 @@ async def send_prompt_input_message(user_id: str, reply_token: str, parse_type: 
 
         if parse_type == "exterior":
             example_text = ("追加の指示があれば入力してください。\n\n"
-                           "例：\n"
-                           "・モダンな雰囲気で\n"
-                           "・和風テイストに\n"
-                           "・外壁をブラックに\n\n"
-                           "そのまま生成する場合は「OK」と送信してください。")
+                           "そのままでよければ「そのまま生成」\n"
+                           "指示がある場合は「チャットで指示」\n"
+                           "を選んでください。")
             quick_reply_items = [
                 QuickReplyItem(action=MessageAction(label="そのまま生成", text="OK")),
-                QuickReplyItem(action=MessageAction(label="モダン", text="モダンな雰囲気で")),
-                QuickReplyItem(action=MessageAction(label="和風", text="和風テイストで")),
+                QuickReplyItem(action=MessageAction(label="チャットで指示", text="指示する")),
             ]
         elif parse_type == "interior":
             example_text = ("追加の指示があれば入力してください。\n\n"
-                           "例：\n"
-                           "・モダンな雰囲気で\n"
-                           "・北欧風インテリアに\n"
-                           "・床を明るい木目に\n\n"
-                           "そのまま生成する場合は「OK」と送信してください。")
+                           "そのままでよければ「そのまま生成」\n"
+                           "指示がある場合は「チャットで指示」\n"
+                           "を選んでください。")
             quick_reply_items = [
                 QuickReplyItem(action=MessageAction(label="そのまま生成", text="OK")),
-                QuickReplyItem(action=MessageAction(label="モダン", text="モダンな雰囲気で")),
-                QuickReplyItem(action=MessageAction(label="北欧風", text="北欧風インテリアで")),
+                QuickReplyItem(action=MessageAction(label="チャットで指示", text="指示する")),
             ]
         else: # floor_plan
             example_text = ("追加の指示があれば入力してください。\n\n"
-                           "例：\n"
-                           "・木目でナチュラルに\n"
-                           "・モノトーンでシックに\n"
-                           "・部屋名を英語表記に\n\n"
-                           "そのまま生成する場合は「OK」と送信してください。")
+                           "そのままでよければ「そのまま生成」\n"
+                           "指示がある場合は「チャットで指示」\n"
+                           "を選んでください。")
             quick_reply_items = [
                 QuickReplyItem(action=MessageAction(label="そのまま生成", text="OK")),
-                QuickReplyItem(action=MessageAction(label="ナチュラル", text="木目でナチュラルな雰囲気に")),
-                QuickReplyItem(action=MessageAction(label="シック", text="モノトーンでシックな雰囲気に")),
+                QuickReplyItem(action=MessageAction(label="チャットで指示", text="指示する")),
             ]
 
         await api.reply_message(
@@ -350,7 +353,7 @@ async def process_generation(user_id: str, image_message_id: str, parse_type: st
 
                 if is_premium:
                     message = (
-                        "今月のプレミアム枠（15回）を使い切りました。\n\n"
+                        "今月のプレミアム枠（20回）を使い切りました。\n\n"
                         "来月1日に自動的にリセットされます。\n"
                         "引き続きご利用ありがとうございます！"
                     )
@@ -358,8 +361,8 @@ async def process_generation(user_id: str, image_message_id: str, parse_type: st
                     message = (
                         "今月の無料枠（3回）を使い切りました。\n\n"
                         "🌟 プレミアムプラン: 月額1,980円\n"
-                        "✨ 月15回まで生成可能（1回4枚）\n"
-                        "💰 コスト: 1回あたり約132円\n\n"
+                        "✨ 月20回まで生成可能（1回4枚）\n"
+                        "💰 コスト: 1回あたり約99円\n\n"
                         f"お申し込みはこちら:\n{payment_url}"
                     )
 
@@ -633,9 +636,9 @@ async def send_limit_reached_message(user_id: str, reply_token: str):
             payment_url = "https://buy.stripe.com/test_XXXXXX"  # Stripeダッシュボードで取得
 
         if is_premium:
-            # プレミアムユーザーが15回使い切った場合
+            # プレミアムユーザーが20回使い切った場合
             message = (
-                "今月のプレミアム枠（15回）を使い切りました。\n\n"
+                "今月のプレミアム枠（20回）を使い切りました。\n\n"
                 "来月1日に自動的にリセットされます。\n"
                 "引き続きご利用ありがとうございます！"
             )
@@ -644,8 +647,8 @@ async def send_limit_reached_message(user_id: str, reply_token: str):
             message = (
                 "今月の無料枠（3回）を使い切りました。\n\n"
                 "🌟 プレミアムプラン: 月額1,980円\n"
-                "✨ 月15回まで生成可能（1回4枚）\n"
-                "💰 コスト: 1回あたり約132円\n\n"
+                "✨ 月20回まで生成可能（1回4枚）\n"
+                "💰 コスト: 1回あたり約99円\n\n"
                 f"お申し込みはこちら:\n{payment_url}"
             )
 
@@ -681,7 +684,7 @@ async def send_premium_activated_message(user_id: str):
                 messages=[
                     TextMessage(
                         text="🎉 プレミアムプランが有効になりました！\n\n"
-                             "✨ 月15回まで生成可能（1回4枚）\n"
+                             "✨ 月20回まで生成可能（1回4枚）\n"
                              "📅 毎月1日に回数リセット\n\n"
                              "ご利用ありがとうございます！"
                     )
